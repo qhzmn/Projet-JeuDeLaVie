@@ -33,7 +33,6 @@ public:
             nouvelEtat = (nbVoisinsVivants == 3);
         }
     }
-
     void appliquerNouvelEtat() {
         if (!obstacle) {
             estVivante = nouvelEtat;
@@ -45,6 +44,7 @@ class Grille {
 private:
     std::vector<std::vector<Cellule*>> cellules;
     std::vector<std::vector<bool>> etatPrecedent;
+    
     int largeur, hauteur;
 
 public:
@@ -53,12 +53,10 @@ public:
         initialiser();
         definirVoisins();
     }
-
     Grille(const std::string& fichier) : largeur(0), hauteur(0) {
         chargerGrilleDepuisFichier(fichier);
         definirVoisins();
     }
-
     ~Grille() {
         for (auto& ligne : cellules) {
             for (auto& cellule : ligne) {
@@ -78,7 +76,6 @@ public:
         }
         sauvegarderGrilleDansFichier("historique.txt");
     }
-
     void chargerGrilleDepuisFichier(const std::string& nomFichier) {
         std::ifstream fichier(nomFichier);
         if (!fichier.is_open()) {
@@ -96,7 +93,12 @@ public:
         sauvegarderGrilleDansFichier("historique.txt");
         fichier.close();
     }
-
+    void obstacle(int x, int y) {
+        if (x >= 0 && x < hauteur && y >= 0 && y < largeur) {
+            cellules[x][y]->obstacle = true;
+             cellules[x][y]->estVivante = false;
+        }
+    }
     void definirVoisins() {
         for (int i = 0; i < hauteur; ++i) {
             for (int j = 0; j < largeur; ++j) {
@@ -111,7 +113,6 @@ public:
             }
         }
     }
-
     void afficherDansTerminal() const {
         for (const auto& ligne : cellules) {
             for (const auto& cellule : ligne) {
@@ -125,7 +126,6 @@ public:
         }
         std::cout << '\n';
     }
-
     void sauvegarderGrilleDansFichier(const std::string& nomFichier) const {
         std::ofstream fichier(nomFichier, std::ios::app);
         if (!fichier.is_open()) {
@@ -140,7 +140,6 @@ public:
         fichier << '\n';
         fichier.close();
     }
-
     bool estVide() const {
         for (const auto& ligne : cellules) {
             for (const auto& cellule : ligne) {
@@ -151,7 +150,6 @@ public:
         }
         return true;
     }
-
     void sauvegarderEtatPrecedent() {
         etatPrecedent.resize(hauteur, std::vector<bool>(largeur));
         for (int i = 0; i < hauteur; ++i) {
@@ -160,7 +158,6 @@ public:
             }
         }
     }
-
     bool estIdentiqueAEtatPrecedent() const {
         for (int i = 0; i < hauteur; ++i) {
             for (int j = 0; j < largeur; ++j) {
@@ -188,8 +185,6 @@ public:
     void etapeSuivante() {
         grille.sauvegarderEtatPrecedent();
         grille.sauvegarderGrilleDansFichier("historique.txt");
-
-        
         for (int i = 0; i < grille.getHauteur(); ++i) {
             for (int j = 0; j < grille.getLargeur(); ++j) {
                 grille.getCellule(i, j)->calculerEtatSuivant();
@@ -211,29 +206,22 @@ private:
     sf::RectangleShape celluleShape;
 
 public:
-    Interface(Grille& grille, Simulation& simulation)
-        : grille(grille), simulation(simulation) {
-        // Obtention de la résolution de l'écran
-        sf::VideoMode mode = sf::VideoMode::getDesktopMode();
+    Interface(Grille& grille, Simulation& simulation): grille(grille), simulation(simulation) { 
+        sf::VideoMode mode = sf::VideoMode::getDesktopMode();// Obtention de la résolution de l'écran
         // Création de la fenêtre en mode plein écran
         window.create(mode, "Jeu de la Vie");
-
         // Calcul de la taille des cellules en fonction de la taille de la fenêtre et de la grille
         float largeurFenetre = static_cast<float>(mode.width);
-        float hauteurFenetre = static_cast<float>(mode.height);
-        
+        float hauteurFenetre = static_cast<float>(mode.height); 
         // Calcul de la taille des cellules en fonction de la grille
         float tailleCelluleX = largeurFenetre / grille.getLargeur();
         float tailleCelluleY = hauteurFenetre / grille.getHauteur();
-        
         // Utilisation de la taille minimale pour que les cellules soient visibles sans dépasser la fenêtre
         float tailleCellule = std::min(tailleCelluleX, tailleCelluleY);
-        
         celluleShape.setSize(sf::Vector2f(tailleCellule, tailleCellule));
         celluleShape.setOutlineColor(sf::Color::Black);
         celluleShape.setOutlineThickness(1.f);
     }
-
     void run() {
         simulation.etapeSuivante();
         while (window.isOpen() && !grille.estVide() && !grille.estIdentiqueAEtatPrecedent()) {
@@ -254,30 +242,30 @@ public:
             }
             window.display();
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        }
+        } 
     }
 };
 
 
 
 int main() {
-    Grille grille("grille2.txt");
+    Grille grille("grille1.txt");
     Simulation simulation(grille);
-
+    grille.obstacle(2, 2);
     int choix;
     std::cout << "Choisissez le mode d'affichage :\n";
     std::cout << "1. Terminal\n";
     std::cout << "2. Interface graphique\n";
     std::cin >> choix;
-
     if (choix == 1) {
         std::cout << "Nombre d'itération ? ";
         std::cin >> choix;
         int iteration = 1;
-        std::cout << "---Grille initiale---" << std::endl;
+        std::cout << "---Grille initiale---" << std::endl;  
         grille.afficherDansTerminal();
-        simulation.etapeSuivante();
-        grille.afficherDansTerminal();
+        //simulation.etapeSuivante();
+        etatPrecedent.resize(hauteur, std::vector<bool>(largeur, false));
+        //grille.afficherDansTerminal();
         while (iteration != choix + 1 && !grille.estVide() && !grille.estIdentiqueAEtatPrecedent()) {
             std::cout << "---Grille itération " << iteration << " ---" << std::endl;
             simulation.etapeSuivante();
@@ -289,6 +277,5 @@ int main() {
         Interface interface(grille, simulation);
         interface.run();
     }
-
     return 0;
 }
