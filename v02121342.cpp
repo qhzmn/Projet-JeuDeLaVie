@@ -16,7 +16,7 @@ public:
 
     Cellule(bool vivante = false) : estVivante(vivante), nouvelEtat(false), obstacle(false) {}
 
-    void calculerEtatSuivant() {
+    void calculerEtatSuivant() { //Calcule l'état suivant de la cellule en fonction du nombre de voisins vivants.
         if (obstacle) {
             nouvelEtat = estVivante;
             return;
@@ -33,7 +33,7 @@ public:
             nouvelEtat = (nbVoisinsVivants == 3);
         }
     }
-    void appliquerNouvelEtat() {
+    void appliquerNouvelEtat() { //Applique l'état calculé dans nouvelEtat à la cellule si ce n'est pas un obstacle.
         if (!obstacle) {
             estVivante = nouvelEtat;
         }
@@ -64,8 +64,11 @@ public:
             }
         }
     }
+    void initialiserEtatPrecedent() { 
+        etatPrecedent.resize(hauteur, std::vector<bool>(largeur, false));
+    }
 
-    void initialiser() {
+    void initialiser() { ////Remplie la grille avec des cellules vivantes ou mortes de manière aléatoire.
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> dis(0, 1);
@@ -76,7 +79,7 @@ public:
         }
         sauvegarderGrilleDansFichier("historique.txt");
     }
-    void chargerGrilleDepuisFichier(const std::string& nomFichier) {
+    void chargerGrilleDepuisFichier(const std::string& nomFichier) { //Charge une grille à partir d'un fichier texte, en lisant les dimensions et les états des cellules.
         std::ifstream fichier(nomFichier);
         if (!fichier.is_open()) {
             throw std::runtime_error("Erreur d'ouverture du fichier.");
@@ -93,13 +96,13 @@ public:
         sauvegarderGrilleDansFichier("historique.txt");
         fichier.close();
     }
-    void obstacle(int x, int y) {
+    void obstacle(int x, int y) { //Place un obstacle à la position (x, y).
         if (x >= 0 && x < hauteur && y >= 0 && y < largeur) {
             cellules[x][y]->obstacle = true;
              cellules[x][y]->estVivante = false;
         }
     }
-    void definirVoisins() {
+    void definirVoisins() { //Associe les cellules voisines pour chaque cellule, en tenant compte des bords de la grille.
         for (int i = 0; i < hauteur; ++i) {
             for (int j = 0; j < largeur; ++j) {
                 for (int di = -1; di <= 1; ++di) {
@@ -113,7 +116,7 @@ public:
             }
         }
     }
-    void afficherDansTerminal() const {
+    void afficherDansTerminal() const { //Affiche l'état actuel de la grille dans le terminal.
         for (const auto& ligne : cellules) {
             for (const auto& cellule : ligne) {
                 if (cellule->obstacle) {
@@ -126,7 +129,7 @@ public:
         }
         std::cout << '\n';
     }
-    void sauvegarderGrilleDansFichier(const std::string& nomFichier) const {
+    void sauvegarderGrilleDansFichier(const std::string& nomFichier) const { //Sauvegarde l'état actuel de la grille dans un fichier texte.
         std::ofstream fichier(nomFichier, std::ios::app);
         if (!fichier.is_open()) {
             throw std::runtime_error("Erreur lors de l'ouverture du fichier pour l'écriture.");
@@ -140,7 +143,7 @@ public:
         fichier << '\n';
         fichier.close();
     }
-    bool estVide() const {
+    bool estVide() const { //Retourne true si toutes les cellules sont mortes.
         for (const auto& ligne : cellules) {
             for (const auto& cellule : ligne) {
                 if (cellule->estVivante) {
@@ -150,7 +153,7 @@ public:
         }
         return true;
     }
-    void sauvegarderEtatPrecedent() {
+    void sauvegarderEtatPrecedent() { //Sauvegarde l'état courant de la grille dans etatPrecedent pour pouvoir comparer les états et vérifier si la grille est stable.
         etatPrecedent.resize(hauteur, std::vector<bool>(largeur));
         for (int i = 0; i < hauteur; ++i) {
             for (int j = 0; j < largeur; ++j) {
@@ -158,7 +161,7 @@ public:
             }
         }
     }
-    bool estIdentiqueAEtatPrecedent() const {
+    bool estIdentiqueAEtatPrecedent() const { //Vérifie si l'état actuel de la grille est identique à l'état précédent.
         for (int i = 0; i < hauteur; ++i) {
             for (int j = 0; j < largeur; ++j) {
                 if (cellules[i][j]->estVivante != etatPrecedent[i][j]) {
@@ -182,7 +185,7 @@ private:
 public:
     Simulation(Grille& grille) : grille(grille) {}
 
-    void etapeSuivante() {
+    void etapeSuivante() { //Sauvegarde l'état précédent de la grille, calcule l'état suivant pour chaque cellule et applique le nouvel état à chaque cellule.
         grille.sauvegarderEtatPrecedent();
         grille.sauvegarderGrilleDansFichier("historique.txt");
         for (int i = 0; i < grille.getHauteur(); ++i) {
@@ -222,36 +225,48 @@ public:
         celluleShape.setOutlineColor(sf::Color::Black);
         celluleShape.setOutlineThickness(1.f);
     }
-    void run() {
-        simulation.etapeSuivante();
-        while (window.isOpen() && !grille.estVide() && !grille.estIdentiqueAEtatPrecedent()) {
-            sf::Event event;
-            while (window.pollEvent(event)) {
-                if (event.type == sf::Event::Closed)
-                    window.close();
+    void run() { //Gère  la boucle de l'interface graphique, ainsi que les touches claviers.
+    bool estEnPause = false;
+    simulation.etapeSuivante();
+
+    while (window.isOpen() && !grille.estVide() && !grille.estIdentiqueAEtatPrecedent()) {
+        sf::Event event;
+        while (window.pollEvent(event)) {
+            if (event.type == sf::Event::Closed) {
+                window.close();
+            } else if (event.type == sf::Event::KeyPressed) {
+                if (event.key.code == sf::Keyboard::Space) {
+                    estEnPause = !estEnPause;  // Alterne l'état de pause
+                } else if (event.key.code == sf::Keyboard::Escape) {
+                    window.close();  // Ferme la fenêtre
+                }
             }
+        }
+
+        if (!estEnPause) {
             simulation.etapeSuivante();
             window.clear(sf::Color::White);
             for (int i = 0; i < grille.getHauteur(); ++i) {
                 for (int j = 0; j < grille.getLargeur(); ++j) {
                     Cellule* cellule = grille.getCellule(i, j);
-                    celluleShape.setFillColor(cellule->obstacle ? sf::Color::Red : (cellule->estVivante ? sf::Color::Green : sf::Color::White));
+                    celluleShape.setFillColor(cellule->obstacle ? sf::Color::Red : (cellule->estVivante ? sf::Color::White : sf::Color::Black));
                     celluleShape.setPosition(j * celluleShape.getSize().x, i * celluleShape.getSize().y);
                     window.draw(celluleShape);
                 }
             }
             window.display();
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        } 
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));  // Ajustez la vitesse si nécessaire
+        }
     }
+}
+
 };
 
-
-
 int main() {
-    Grille grille("grille1.txt");
+    Grille grille("grille3.txt");
     Simulation simulation(grille);
-    grille.obstacle(2, 2);
+    grille.initialiserEtatPrecedent();
+    //grille.obstacle(2, 2);
     int choix;
     std::cout << "Choisissez le mode d'affichage :\n";
     std::cout << "1. Terminal\n";
@@ -263,15 +278,13 @@ int main() {
         int iteration = 1;
         std::cout << "---Grille initiale---" << std::endl;  
         grille.afficherDansTerminal();
-        //simulation.etapeSuivante();
-        etatPrecedent.resize(hauteur, std::vector<bool>(largeur, false));
-        //grille.afficherDansTerminal();
+        
         while (iteration != choix + 1 && !grille.estVide() && !grille.estIdentiqueAEtatPrecedent()) {
             std::cout << "---Grille itération " << iteration << " ---" << std::endl;
             simulation.etapeSuivante();
             grille.afficherDansTerminal();
             iteration++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(400));
         }
     } else if (choix == 2) {
         Interface interface(grille, simulation);
