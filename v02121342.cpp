@@ -93,7 +93,7 @@ public:
                 cellules[i][j] = new Cellule(val == 1);
             }
         }
-        sauvegarderGrilleDansFichier("historique.txt");
+        sauvegarderGrilleDansFichier("grid_out.txt");
         fichier.close();
     }
     void obstacle(int x, int y) { //Place un obstacle à la position (x, y).
