@@ -77,7 +77,7 @@ public:
                 cellules[i][j] = new Cellule(dis(gen));
             }
         }
-        sauvegarderGrilleDansFichier("historique.txt");
+        sauvegarderGrilleDansFichier("grid_out.txt");
     }
     void chargerGrilleDepuisFichier(const std::string& nomFichier) { //Charge une grille à partir d'un fichier texte, en lisant les dimensions et les états des cellules.
         std::ifstream fichier(nomFichier);
@@ -187,7 +187,7 @@ public:
 
     void etapeSuivante() { //Sauvegarde l'état précédent de la grille, calcule l'état suivant pour chaque cellule et applique le nouvel état à chaque cellule.
         grille.sauvegarderEtatPrecedent();
-        grille.sauvegarderGrilleDansFichier("historique.txt");
+        grille.sauvegarderGrilleDansFichier("grid_out.txt");
         for (int i = 0; i < grille.getHauteur(); ++i) {
             for (int j = 0; j < grille.getLargeur(); ++j) {
                 grille.getCellule(i, j)->calculerEtatSuivant();
@@ -263,7 +263,8 @@ public:
 };
 
 int main() {
-    Grille grille("grille3.txt");
+    //Grille grille("grille1.txt");
+    Grille grille(75,50);
     Simulation simulation(grille);
     grille.initialiserEtatPrecedent();
     //grille.obstacle(2, 2);
