@@ -1,5 +1,4 @@
-# ProjetPOO
-Le jeu de la vie
+# Projet Jeu de la vie
 
 Le jeu de la vie est un automate cellulaire inventé par le mathématicien John Conway. Ce projet propose une implémentation en C++ du jeu de la vie en utilisant les concepts de la programmation orientée objet (POO). 
 Dans ce jeu, une population de cellules, vivantes ou mortes, évolue sur une grille bidimensionnelle selon des règles simples :
