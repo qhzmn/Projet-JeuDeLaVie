@@ -45,4 +45,4 @@ Pour lancer le programme :
 1. [Fonctionnalités](#fonctionnalités)
 2. [Extensions](#extensions)
 3. [Exemple d'Utilisation](#exemple-d'utilisation)
-4. [Captures d'Écran](#captures-d'ecran)
+4. Captures d'Écran
