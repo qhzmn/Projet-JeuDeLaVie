@@ -41,3 +41,8 @@ Pour lancer le programme :
 ![image](https://github.com/user-attachments/assets/5913db1a-7a3b-479b-99ac-bd3234785450)
 
 ---
+
+1. [Fonctionnalités](#fonctionnalités)
+2. [Extensions](#matériel)
+3. [Exemple d'Utilisation](#modes-de-fonctionnement)
+4. [Captures d'Écran](#objectif)
