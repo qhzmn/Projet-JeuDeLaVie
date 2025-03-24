@@ -45,5 +45,5 @@ Pour lancer le programme :
 1. [Fonctionnalités](#fonctionnalités)
 2. [Extensions](#extensions)
 3. [Exemple d'Utilisation](#exemple-dutilisation)
-4. [Capturs d'Écran](captures-decran)
+4. [Captures d'Écran](captures-decran)
    
