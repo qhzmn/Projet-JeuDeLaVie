@@ -43,6 +43,6 @@ Pour lancer le programme :
 ---
 
 1. [Fonctionnalités](#fonctionnalités)
-2. [Extensions](#matériel)
-3. [Exemple d'Utilisation](#modes-de-fonctionnement)
-4. [Captures d'Écran](#objectif)
+2. [Extensions](#extensions)
+3. [Exemple d'Utilisation](#exemple-d'utilisation)
+4. [Captures d'Écran](#captures-d'ecran)
